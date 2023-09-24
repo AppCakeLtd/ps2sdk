@@ -339,6 +339,14 @@ static void sio2_unlock()
     // M_DEBUG("%s()\n", __FUNCTION__);
 }
 
+void sendHello(void) {
+    uint8_t buffer[4] = { 0x8B, 0x01, 0x00, 0x00 };
+
+    sio2_lock();
+    sendCmd_Tx_PIO(buffer, 4, PORT_NR);
+    sio2_unlock();
+}
+
 int module_start(int argc, char *argv[])
 {
     if (RegisterLibraryEntries(&_exp_mcp2sio) != 0)
@@ -373,13 +381,7 @@ int module_start(int argc, char *argv[])
     dmac_enable(IOP_DMAC_SIO2in);
     dmac_enable(IOP_DMAC_SIO2out);
 
-    uint8_t buffer[4] = { 0x8B, 0x01, 0x00, 0x00 };
-
-    sio2_lock();
-    sendCmd_Tx_PIO(buffer, 4, PORT_NR);
-    // sendCmd_Tx1_Rx1(0x8B, PORT_NR);
-    // sendCmd_Rx_PIO((void *)&rv, 4, PORT_NR);
-    sio2_unlock();
+    sendHello();
 
     DPRINTF("Init Done\n");
 
