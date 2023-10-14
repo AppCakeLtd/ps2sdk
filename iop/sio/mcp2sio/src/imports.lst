@@ -43,11 +43,18 @@ sio2man_IMPORTS_end
 #endif
 #endif
 
+sysmem_IMPORTS_start
+I_AllocSysMemory
+I_FreeSysMemory
+sysmem_IMPORTS_end
+
 stdio_IMPORTS_start
 I_printf
 stdio_IMPORTS_end
 
 sysclib_IMPORTS_start
+I_memset
+I_memcpy
 I_strcmp
 stdio_IMPORTS_end
 

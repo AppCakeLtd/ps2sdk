@@ -33,6 +33,7 @@
 
 #include "stdio.h"
 #include "sysclib.h"
+#include <sysmem.h>
 #include "thevent.h"
 #include "thsemap.h"
 

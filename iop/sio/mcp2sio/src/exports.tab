@@ -5,7 +5,7 @@ DECLARE_EXPORT_TABLE(mcp2sio, 1, 1)
         DECLARE_EXPORT(_retonly)
 
         /* 4 */
-        DECLARE_EXPORT(sendHello)
+        DECLARE_EXPORT(sendCommandWithBuffer)
 END_EXPORT_TABLE
 
 void _retonly() {}

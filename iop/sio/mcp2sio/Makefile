@@ -10,7 +10,7 @@ IOP_INCS += -I$(PS2SDKSRC)/iop/system/sio2man/include
 
 IOP_BIN = mcp2sio.irx
 
-IOP_OBJS = mcp2sio.o mcp2sio_exports.o ioplib.o sio2man_hook.o imports.o exports.o
+IOP_OBJS = mcp2sio.o ioplib.o sio2man_hook.o imports.o exports.o
 
 include $(PS2SDKSRC)/Defs.make
 include $(PS2SDKSRC)/iop/Rules.bin.make

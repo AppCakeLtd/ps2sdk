@@ -1,4 +1,5 @@
 // This include will allow us to avoid reincluding other headers
+#include <sysmem.h>
 #include "irx_imports.h"
 
 #define MODNAME "mcp2sio"
@@ -37,6 +38,25 @@ struct dma_command
     volatile uint8_t abort; // written by thread, read by isr
 };
 struct dma_command cmd;
+
+void *malloc(int size){
+	int OldState;
+	void *result;
+
+	CpuSuspendIntr(&OldState);
+	result = AllocSysMemory(ALLOC_FIRST, size, NULL);
+	CpuResumeIntr(OldState);
+
+	return result;
+}
+
+void free(void *buffer){
+	int OldState;
+
+	CpuSuspendIntr(&OldState);
+	FreeSysMemory(buffer);
+	CpuResumeIntr(OldState);
+}
 
 static uint8_t sendCmd_Tx1_Rx1(uint8_t data, int portNr)
 {
@@ -291,11 +311,16 @@ static void _init_td(sio2_transfer_data_t *td, int portNr)
 
 static void _init_ports(sio2_transfer_data_t *td)
 {
-    int i;
-    for (i = 0; i < 4; i++) {
-        inl_sio2_portN_ctrl1_set(i, td->port_ctrl1[i]);
-        inl_sio2_portN_ctrl2_set(i, td->port_ctrl2[i]);
-    }
+    // int i;
+    // Do we need to lock all ports here?
+    // Try locking the port we're interested in
+    inl_sio2_portN_ctrl1_set(PORT_NR, td->port_ctrl1[PORT_NR]);
+    inl_sio2_portN_ctrl2_set(PORT_NR, td->port_ctrl2[PORT_NR]);
+
+    // for (i = 0; i < 4; i++) {
+    //     inl_sio2_portN_ctrl1_set(i, td->port_ctrl1[i]);
+    //     inl_sio2_portN_ctrl2_set(i, td->port_ctrl2[i]);
+    // }
 }
 
 static void sio2_lock()
@@ -339,12 +364,32 @@ static void sio2_unlock()
     // M_DEBUG("%s()\n", __FUNCTION__);
 }
 
-void sendHello(void) {
-    uint8_t buffer[4] = { 0x8B, 0x01, 0x00, 0x00 };
-
+int sendCommandWithBuffer(uint8_t command, uint8_t *data, int size) {
     sio2_lock();
-    sendCmd_Tx_PIO(buffer, 4, PORT_NR);
+
+    switch (command)
+    {
+    case MCP_PING:
+        uint8_t ping[6] = { 0x8B, 0x20, 0x00, 0x00, 0x00, 0x00 };
+        sendCmd_Tx_PIO(ping, 6, PORT_NR);
+        break;
+    case MCP_SET_GAMEID:
+        uint8_t gameid_header[3] = { 0x8B, 0x21, 0x00 };
+        uint8_t *final_command = (uint8_t *)malloc((size + 3) * sizeof(uint8_t));
+        memcpy(final_command, gameid_header, 3);
+        memcpy(final_command + 3, data, size);
+        
+        sendCmd_Tx_PIO(final_command, (size + 3), PORT_NR);
+
+        free(final_command);
+    
+    default:
+        break;
+    }
+
     sio2_unlock();
+
+    return -1;
 }
 
 int module_start(int argc, char *argv[])
@@ -381,7 +426,7 @@ int module_start(int argc, char *argv[])
     dmac_enable(IOP_DMAC_SIO2in);
     dmac_enable(IOP_DMAC_SIO2out);
 
-    sendHello();
+    sendCommandWithBuffer(MCP_PING, NULL, 0);
 
     DPRINTF("Init Done\n");
 
