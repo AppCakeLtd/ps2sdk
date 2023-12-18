@@ -6,7 +6,7 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 
-SUBDIRS = mcp2sio mx4sio_bd mx4sio_bd_mini
+SUBDIRS = mx4sio_bd mx4sio_bd_mini
 
 include $(PS2SDKSRC)/Defs.make
 include $(PS2SDKSRC)/Rules.make
