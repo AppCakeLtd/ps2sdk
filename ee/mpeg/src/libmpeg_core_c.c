@@ -479,7 +479,7 @@ void _MPEG_SetPCT ( unsigned int arg0 )
 
 void _MPEG_BDEC ( int arg0, int arg1, int arg2, int arg3, void* arg4 )
 {
-	*R_EE_D3_MADR = ((uint)arg4 & ~0xf0000000) | 0x80000000;
+	*R_EE_D3_MADR = ((u32)arg4 & ~0xf0000000) | 0x80000000;
 	*R_EE_D3_QWC = 0x30;
 	*R_EE_D3_CHCR = 0x100;
 	_ipu_sync();
@@ -539,7 +539,7 @@ void _MPEG_dma_ref_image ( _MPEGMacroBlock8* arg0, _MPEGMotion* arg1, s64 arg2, 
 	{
 		var3 = arg2;
 	}
-	u64 var5 = (ulong)var3;
+	u64 var5 = (u64)var3;
 	if (arg2 >> 0x1f < 1)
 	{
 		// TODO: correct implementation of CONCAT44?
